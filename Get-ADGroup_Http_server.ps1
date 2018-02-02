@@ -21,12 +21,12 @@ $modules = get-module | select -expand name
         $adgroupname = $null     
         $nesting++ 
         Try {
-            $ADGroupname = get-adgroup $groupname -properties memberof,members
+            $ADGroupname = Get-ADGroup $groupname -properties memberof,members
         }
         Catch { }  
-        $memberof = $adgroupname | select -expand memberof 
-        write-verbose "Checking group: $($adgroupname.name)" 
-        if ($adgroupname) 
+        $memberof = $ADGroupname | select -expand memberof 
+        write-verbose "Checking group: $($ADGroupname.name)" 
+        if ($ADGroupname) 
         {  
             if ($circular) 
             { 
@@ -53,19 +53,20 @@ $modules = get-module | select -expand name
  
             foreach ($nestedmember in $nestedmembers) 
             { 
-                $Props = @{Type=$nestedmember.objectclass;Name=$nestedmember.name;DisplayName="";ParentGroup=$ADgroupname.name;Enabled="";Nesting=$nesting;DN=$nestedmember.distinguishedname;Comment=""} 
+                $Props = @{Type=$nestedmember.objectclass;Name=$nestedmember.name;DisplayName="";ParentGroup=$ADGroupname.name;Enabled="";Nesting=$nesting;DN=$nestedmember.distinguishedname;Comment=""} 
                  
                 if ($nestedmember.objectclass -eq "user") 
                 { 
-                    If ($nestedadmember.samaccountname -ne $null) {
-                        $list = $list + [string]$nestedadmember.samaccountname + "<br> "
-                    }
+                    #if ($nestedadmember.samaccountname -ne $null) {
+                        #$list = $list + [string]$nestedadmember.samaccountname + "<br> "
+                    #}
                     $nestedADMember = get-aduser $nestedmember -properties enabled,displayname 
                     $table = new-object psobject -property $props 
                     $table.enabled = $nestedadmember.enabled
                     $table.name = $nestedadmember.samaccountname
                     $table.displayname = $nestedadmember.displayname
                     $table | select type,name,displayname,parentgroup,nesting,enabled,dn,comment 
+                    $list = $list + [string]$nestedADMember.samaccountname + "<br> "
                 } 
                 elseif ($nestedmember.objectclass -eq "group") 
                 {  
