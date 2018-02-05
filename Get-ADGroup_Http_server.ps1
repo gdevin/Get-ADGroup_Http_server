@@ -82,7 +82,7 @@ $modules = get-module | select -expand name
                     { 
                         $table | select type,name,displayname,parentgroup,nesting,enabled,dn,comment 
                     } 
-                    Get-ADNestedGroupMembers -GroupName $nestedmember.distinguishedName -nesting $nesting -circular $circular -existingList $existingList
+                    Get-ADNestedGroupMembers -GroupName $nestedmember.distinguishedName -nesting $nesting -circular $circular -existingList ($existingList + $list)
                 
                 }
                 else 
@@ -97,7 +97,7 @@ $modules = get-module | select -expand name
         }
         else {Write-Warning "Active Directory module is not loaded"}
     }
-    Return $existingList + $list
+    Return  (($existingList + $list) -split '<br> ' | Select -Unique) -join '<br> '
 }
 
 
